@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 export function Hero() {
   return (
     <section id="home" className="border-b border-zinc-200/80">
@@ -33,18 +31,21 @@ export function Hero() {
         <div className="fade-up fade-delay-1 lg:col-span-6">
           <div className="soft-panel relative overflow-hidden rounded-3xl p-2">
             <div className="relative h-[300px] overflow-hidden rounded-2xl sm:h-[420px]">
-              <Image
-                src="https://images.pexels.com/photos/271743/pexels-photo-271743.jpeg?auto=compress&cs=tinysrgb&w=1600"
-                alt="Modern premium interior living room"
-                fill
-                priority
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-black/5 to-transparent" />
-              <p className="absolute right-4 bottom-4 rounded-full bg-white/92 px-4 py-2 text-xs font-medium tracking-wide text-zinc-800">
-                Dutch-style premium finish
-              </p>
+              <video
+                className="h-full w-full object-cover"
+                autoPlay
+                muted
+                loop
+                playsInline
+                controls
+                preload="metadata"
+                poster="https://images.pexels.com/photos/271743/pexels-photo-271743.jpeg?auto=compress&cs=tinysrgb&w=1600"
+                aria-label="SmartLivings introduction video"
+              >
+                <source src="/video/Smartlivings.mov" type="video/quicktime" />
+                <source src="/video/Smartlivings.mov" />
+                Your browser does not support HTML video.
+              </video>
             </div>
           </div>
         </div>
