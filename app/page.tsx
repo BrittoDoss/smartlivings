@@ -7,7 +7,7 @@ import { Services } from "@/components/Services";
 import { WhyUs } from "@/components/WhyUs";
 
 export default function Home() {
-  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "31600000000";
+  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "31623053300";
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=Hi%20SmartLivings%2C%20I%20want%20a%20consultation%20for%20my%20home%20project.`;
 
   return (
