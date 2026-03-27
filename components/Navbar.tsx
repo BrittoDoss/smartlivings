@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 const navItems = [
   { label: "Home", href: "#home" },
   { label: "Services", href: "#services" },
@@ -8,13 +10,20 @@ const navItems = [
 export function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-200/70 bg-white/85 backdrop-blur-md">
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4 lg:px-8">
+      <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-5 lg:px-8">
         <a
           href="#home"
-          className="font-display text-2xl leading-none tracking-tight text-zinc-900"
+          className="inline-flex items-center"
           aria-label="SmartLivings home"
         >
-          SmartLivings
+          <Image
+            src="/images/smartlivings_logo.png"
+            alt="SmartLivings logo"
+            width={400}
+            height={150}
+            priority
+            className="h-10 w-auto sm:h-14"
+          />
         </a>
         <nav aria-label="Main navigation" className="flex items-center gap-4">
           <ul className="hidden items-center gap-8 text-sm font-medium text-zinc-700 md:flex">
