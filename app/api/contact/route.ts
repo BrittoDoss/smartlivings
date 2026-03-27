@@ -210,7 +210,8 @@ export async function POST(request: Request) {
           ? [
               {
                 filename: fileMeta.name,
-                content: fileBytes.toString("base64"),
+                content: fileBytes,
+                contentType: fileMeta.type,
               },
             ]
           : undefined,
