@@ -138,8 +138,9 @@ const siteCopy: Record<Locale, SiteCopy> = {
       title: "Recent work snapshots",
       items: [
         {
-          title: "Canal Apartment",
-          description: "Renovation and interior planning for a compact urban home.",
+          title: "Almere Vogelhorst",
+          description:
+            "Contemporary residential transformation with premium interior detailing.",
         },
         {
           title: "Family Villa",
@@ -262,8 +263,9 @@ const siteCopy: Record<Locale, SiteCopy> = {
       title: "Recente projectimpressies",
       items: [
         {
-          title: "Grachtenappartement",
-          description: "Renovatie en interieurplanning voor een compacte stadswoning.",
+          title: "Almere Vogelhorst",
+          description:
+            "Moderne woningtransformatie met premium interieurafwerking.",
         },
         {
           title: "Gezinsvilla",
