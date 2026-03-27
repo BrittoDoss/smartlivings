@@ -112,6 +112,18 @@ export default async function AdminSubmissionsPage() {
                         <p className="font-medium text-zinc-800">{submission.file_name}</p>
                         <p>{submission.file_type}</p>
                         <p>{submission.file_size ? `${submission.file_size} bytes` : ""}</p>
+                        {submission.file_download_url ? (
+                          <a
+                            href={submission.file_download_url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="mt-2 inline-flex rounded-full bg-teal-700 px-3 py-1 text-xs font-semibold text-white transition hover:bg-teal-600"
+                          >
+                            Download
+                          </a>
+                        ) : (
+                          <p className="mt-2 text-red-600">Download unavailable</p>
+                        )}
                         <p className="mt-1 break-all text-zinc-500">{submission.file_path}</p>
                       </div>
                     ) : (

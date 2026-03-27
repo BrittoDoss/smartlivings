@@ -19,6 +19,23 @@ export type SubmissionInput = {
   fileBytes: Buffer | null;
 };
 
+export type SubmissionRecord = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  project_type: string;
+  budget_range: string;
+  message: string;
+  file_name: string | null;
+  file_type: string | null;
+  file_size: number | null;
+  file_path: string | null;
+  submitted_at: string | null;
+  created_at: string | null;
+  file_download_url: string | null;
+};
+
 const FILE_BUCKET = process.env.SUPABASE_STORAGE_BUCKET ?? "contact-files";
 const TABLE_NAME = process.env.SUPABASE_SUBMISSIONS_TABLE ?? "contact_submissions";
 
@@ -95,5 +112,32 @@ export async function listSubmissions(limit = 100) {
     throw new Error(`Failed to fetch submissions: ${error.message}`);
   }
 
-  return data ?? [];
+  const submissions = (data ?? []) as Omit<SubmissionRecord, "file_download_url">[];
+  const filePaths = submissions
+    .map((submission) => submission.file_path)
+    .filter((path): path is string => Boolean(path));
+
+  const signedUrlByPath = new Map<string, string>();
+  if (filePaths.length > 0) {
+    const { data: signedUrls, error: signedUrlError } = await supabase.storage
+      .from(FILE_BUCKET)
+      .createSignedUrls(filePaths, 60 * 15);
+
+    if (signedUrlError) {
+      throw new Error(`Failed to create file links: ${signedUrlError.message}`);
+    }
+
+    for (const entry of signedUrls ?? []) {
+      if (entry.path && entry.signedUrl) {
+        signedUrlByPath.set(entry.path, entry.signedUrl);
+      }
+    }
+  }
+
+  return submissions.map((submission) => ({
+    ...submission,
+    file_download_url: submission.file_path
+      ? signedUrlByPath.get(submission.file_path) ?? null
+      : null,
+  }));
 }
