@@ -5,22 +5,31 @@ import { Navbar } from "@/components/Navbar";
 import { Projects } from "@/components/Projects";
 import { Services } from "@/components/Services";
 import { WhyUs } from "@/components/WhyUs";
+import { getLocaleFromLangParam, getSiteCopy } from "@/lib/i18n";
 
-export default function Home() {
+type HomeProps = {
+  searchParams: Promise<{ lang?: string }>;
+};
+
+export default async function Home({ searchParams }: HomeProps) {
+  const params = await searchParams;
+  const locale = getLocaleFromLangParam(params.lang);
+  const copy = getSiteCopy(locale);
+
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "31623053300";
-  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=Hi%20SmartLivings%2C%20I%20want%20a%20consultation%20for%20my%20home%20project.`;
+  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(copy.whatsapp.message)}`;
 
   return (
     <>
-      <Navbar />
+      <Navbar locale={locale} copy={copy.navbar} />
       <main>
-        <Hero />
-        <Services />
-        <WhyUs />
-        <Projects />
-        <ContactForm />
+        <Hero copy={copy.hero} />
+        <Services copy={copy.services} />
+        <WhyUs copy={copy.whyUs} />
+        <Projects copy={copy.projects} />
+        <ContactForm copy={copy.contact} />
       </main>
-      <Footer />
+      <Footer copy={copy.footer} />
       <a
         href={whatsappUrl}
         target="_blank"
@@ -28,7 +37,7 @@ export default function Home() {
         aria-label="Chat on WhatsApp"
         className="fixed right-5 bottom-5 z-40 inline-flex h-12 items-center justify-center rounded-full bg-emerald-600 px-5 text-sm font-semibold text-white shadow-lg shadow-emerald-900/30 transition hover:bg-emerald-500"
       >
-        WhatsApp
+        {copy.whatsapp.label}
       </a>
     </>
   );

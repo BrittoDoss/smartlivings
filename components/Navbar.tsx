@@ -1,13 +1,20 @@
 import Image from "next/image";
+import type { Locale, SiteCopy } from "@/lib/i18n";
+import { LanguageSelector } from "@/components/LanguageSelector";
 
-const navItems = [
-  { label: "Home", href: "#home" },
-  { label: "Services", href: "#services" },
-  { label: "Projects", href: "#projects" },
-  { label: "Contact", href: "#contact" },
-];
+type NavbarProps = {
+  locale: Locale;
+  copy: SiteCopy["navbar"];
+};
 
-export function Navbar() {
+export function Navbar({ locale, copy }: NavbarProps) {
+  const navItems = [
+    { label: copy.home, href: "#home" },
+    { label: copy.services, href: "#services" },
+    { label: copy.projects, href: "#projects" },
+    { label: copy.contact, href: "#contact" },
+  ];
+
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-200/70 bg-white/85 backdrop-blur-md">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-5 lg:px-8">
@@ -38,11 +45,12 @@ export function Navbar() {
               </li>
             ))}
           </ul>
+          <LanguageSelector locale={locale} label={copy.language} />
           <a
             href="#contact"
             className="inline-flex h-10 items-center rounded-full bg-teal-700 px-4 text-xs font-semibold tracking-wide text-white transition hover:bg-teal-600"
           >
-            Free Consultation
+            {copy.consultationCta}
           </a>
         </nav>
       </div>

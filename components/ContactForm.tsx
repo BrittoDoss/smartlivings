@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { cn } from "@/lib/utils";
+import type { SiteCopy } from "@/lib/i18n";
 
 type FormFields =
   | "name"
@@ -14,9 +15,12 @@ type FormFields =
 
 type FormErrors = Partial<Record<FormFields, string>>;
 
-const PROJECT_TYPES = ["New Build", "Renovation", "Interiors"] as const;
+type ContactFormProps = {
+  copy: SiteCopy["contact"];
+};
 
-const BUDGET_RANGES = [
+const PROJECT_TYPE_VALUES = ["New Build", "Renovation", "Interiors"] as const;
+const BUDGET_RANGE_VALUES = [
   "Below €25k",
   "€25k - €50k",
   "€50k - €100k",
@@ -29,7 +33,7 @@ const inputClassName =
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phonePattern = /^[0-9+\s()-]{7,20}$/;
 
-function validate(formData: FormData): FormErrors {
+function validate(formData: FormData, copy: SiteCopy["contact"]): FormErrors {
   const name = String(formData.get("name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
   const phone = String(formData.get("phone") ?? "").trim();
@@ -41,43 +45,45 @@ function validate(formData: FormData): FormErrors {
   const errors: FormErrors = {};
 
   if (name.length < 2) {
-    errors.name = "Please enter your full name.";
+    errors.name = copy.errors.name;
   }
 
   if (!emailPattern.test(email)) {
-    errors.email = "Please enter a valid email address.";
+    errors.email = copy.errors.email;
   }
 
   if (!phonePattern.test(phone)) {
-    errors.phone = "Please enter a valid phone number.";
+    errors.phone = copy.errors.phone;
   }
 
-  if (!PROJECT_TYPES.includes(projectType as (typeof PROJECT_TYPES)[number])) {
-    errors.projectType = "Please choose a project type.";
+  if (!PROJECT_TYPE_VALUES.includes(projectType as (typeof PROJECT_TYPE_VALUES)[number])) {
+    errors.projectType = copy.errors.projectType;
   }
 
-  if (!BUDGET_RANGES.includes(budgetRange as (typeof BUDGET_RANGES)[number])) {
-    errors.budgetRange = "Please choose a budget range.";
+  if (!BUDGET_RANGE_VALUES.includes(budgetRange as (typeof BUDGET_RANGE_VALUES)[number])) {
+    errors.budgetRange = copy.errors.budgetRange;
   }
 
   if (message.length < 10) {
-    errors.message = "Please share a short project brief (minimum 10 characters).";
+    errors.message = copy.errors.message;
   }
 
   if (file instanceof File && file.size > 0) {
     const maxSize = 10 * 1024 * 1024;
     if (file.size > maxSize) {
-      errors.file = "File must be under 10MB.";
+      errors.file = copy.errors.file;
     }
   }
 
   return errors;
 }
 
-export function ContactForm() {
+export function ContactForm({ copy }: ContactFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [status, setStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [status, setStatus] = useState<{ type: "success" | "error"; message: string } | null>(
+    null,
+  );
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -85,7 +91,7 @@ export function ContactForm() {
 
     const formElement = event.currentTarget;
     const formData = new FormData(formElement);
-    const validationErrors = validate(formData);
+    const validationErrors = validate(formData, copy);
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -102,23 +108,22 @@ export function ContactForm() {
       });
 
       const result = (await response.json()) as { message?: string };
-
       if (!response.ok) {
-        throw new Error(result.message ?? "Could not submit your request.");
+        throw new Error(result.message ?? copy.requestFailed);
       }
 
       setStatus({
         type: "success",
-        message: result.message ?? "Thank you. We will contact you shortly.",
+        message: copy.successFallback,
       });
       formElement.reset();
     } catch (error) {
       setStatus({
         type: "error",
         message:
-          error instanceof Error
+          error instanceof Error && error.message
             ? error.message
-            : "Submission failed. Please try again.",
+            : copy.submitFailed,
       });
     } finally {
       setIsSubmitting(false);
@@ -132,15 +137,12 @@ export function ContactForm() {
     >
       <div className="mx-auto w-full max-w-6xl px-6 py-16 lg:px-8 lg:py-20">
         <div className="fade-up max-w-3xl">
-          <p className="text-xs uppercase tracking-[0.16em] text-zinc-500">
-            Contact
-          </p>
+          <p className="text-xs uppercase tracking-[0.16em] text-zinc-500">{copy.eyebrow}</p>
           <h2 className="mt-3 font-display text-3xl tracking-tight text-zinc-950 sm:text-4xl">
-            Request your free quote
+            {copy.title}
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-zinc-600 sm:text-base">
-            Share your project details and upload any floor plans or references.
-            Our team will respond with the next steps.
+            {copy.description}
           </p>
         </div>
 
@@ -152,31 +154,55 @@ export function ContactForm() {
         >
           <div>
             <label htmlFor="name" className="mb-2 block text-sm font-medium text-zinc-800">
-              Name
+              {copy.name}
             </label>
-            <input id="name" name="name" type="text" className={cn(inputClassName, errors.name ? "border-red-400 focus:border-red-500 focus:ring-red-200" : "")} />
+            <input
+              id="name"
+              name="name"
+              type="text"
+              className={cn(
+                inputClassName,
+                errors.name ? "border-red-400 focus:border-red-500 focus:ring-red-200" : "",
+              )}
+            />
             {errors.name ? <p className="mt-2 text-xs text-red-600">{errors.name}</p> : null}
           </div>
 
           <div>
             <label htmlFor="email" className="mb-2 block text-sm font-medium text-zinc-800">
-              Email
+              {copy.email}
             </label>
-            <input id="email" name="email" type="email" className={cn(inputClassName, errors.email ? "border-red-400 focus:border-red-500 focus:ring-red-200" : "")} />
+            <input
+              id="email"
+              name="email"
+              type="email"
+              className={cn(
+                inputClassName,
+                errors.email ? "border-red-400 focus:border-red-500 focus:ring-red-200" : "",
+              )}
+            />
             {errors.email ? <p className="mt-2 text-xs text-red-600">{errors.email}</p> : null}
           </div>
 
           <div>
             <label htmlFor="phone" className="mb-2 block text-sm font-medium text-zinc-800">
-              Phone
+              {copy.phone}
             </label>
-            <input id="phone" name="phone" type="tel" className={cn(inputClassName, errors.phone ? "border-red-400 focus:border-red-500 focus:ring-red-200" : "")} />
+            <input
+              id="phone"
+              name="phone"
+              type="tel"
+              className={cn(
+                inputClassName,
+                errors.phone ? "border-red-400 focus:border-red-500 focus:ring-red-200" : "",
+              )}
+            />
             {errors.phone ? <p className="mt-2 text-xs text-red-600">{errors.phone}</p> : null}
           </div>
 
           <div>
             <label htmlFor="projectType" className="mb-2 block text-sm font-medium text-zinc-800">
-              Project Type
+              {copy.projectType}
             </label>
             <select
               id="projectType"
@@ -188,20 +214,22 @@ export function ContactForm() {
               )}
             >
               <option value="" disabled>
-                Select project type
+                {copy.projectTypePlaceholder}
               </option>
-              {PROJECT_TYPES.map((type) => (
-                <option key={type} value={type}>
-                  {type}
+              {copy.projectTypeOptions.map((type) => (
+                <option key={type.value} value={type.value}>
+                  {type.label}
                 </option>
               ))}
             </select>
-            {errors.projectType ? <p className="mt-2 text-xs text-red-600">{errors.projectType}</p> : null}
+            {errors.projectType ? (
+              <p className="mt-2 text-xs text-red-600">{errors.projectType}</p>
+            ) : null}
           </div>
 
           <div>
             <label htmlFor="budgetRange" className="mb-2 block text-sm font-medium text-zinc-800">
-              Budget Range
+              {copy.budgetRange}
             </label>
             <select
               id="budgetRange"
@@ -213,20 +241,22 @@ export function ContactForm() {
               )}
             >
               <option value="" disabled>
-                Select budget range
+                {copy.budgetPlaceholder}
               </option>
-              {BUDGET_RANGES.map((range) => (
-                <option key={range} value={range}>
-                  {range}
+              {copy.budgetRangeOptions.map((range) => (
+                <option key={range.value} value={range.value}>
+                  {range.label}
                 </option>
               ))}
             </select>
-            {errors.budgetRange ? <p className="mt-2 text-xs text-red-600">{errors.budgetRange}</p> : null}
+            {errors.budgetRange ? (
+              <p className="mt-2 text-xs text-red-600">{errors.budgetRange}</p>
+            ) : null}
           </div>
 
           <div>
             <label htmlFor="file" className="mb-2 block text-sm font-medium text-zinc-800">
-              File Upload
+              {copy.fileUpload}
             </label>
             <input
               id="file"
@@ -238,15 +268,13 @@ export function ContactForm() {
                 errors.file ? "border-red-400" : "",
               )}
             />
-            <p className="mt-2 text-xs text-zinc-500">
-              Upload floor plans, inspiration images, or PDFs (max 10MB).
-            </p>
+            <p className="mt-2 text-xs text-zinc-500">{copy.fileHelp}</p>
             {errors.file ? <p className="mt-2 text-xs text-red-600">{errors.file}</p> : null}
           </div>
 
           <div className="sm:col-span-2">
             <label htmlFor="message" className="mb-2 block text-sm font-medium text-zinc-800">
-              Message
+              {copy.message}
             </label>
             <textarea
               id="message"
@@ -257,7 +285,7 @@ export function ContactForm() {
                 "resize-y",
                 errors.message ? "border-red-400 focus:border-red-500 focus:ring-red-200" : "",
               )}
-              placeholder="Tell us about your timeline, preferences, and goals."
+              placeholder={copy.messagePlaceholder}
             />
             {errors.message ? <p className="mt-2 text-xs text-red-600">{errors.message}</p> : null}
           </div>
@@ -268,7 +296,7 @@ export function ContactForm() {
               disabled={isSubmitting}
               className="inline-flex h-12 items-center justify-center rounded-full bg-teal-700 px-7 text-sm font-semibold text-white shadow-lg shadow-teal-900/20 transition hover:bg-teal-600 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {isSubmitting ? "Sending..." : "Get Free Consultation"}
+              {isSubmitting ? copy.submitting : copy.submit}
             </button>
             {status ? (
               <p
