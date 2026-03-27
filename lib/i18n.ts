@@ -6,6 +6,7 @@ export type SiteCopy = {
     services: string;
     projects: string;
     contact: string;
+    clientLogin: string;
     consultationCta: string;
     language: string;
   };
@@ -87,6 +88,7 @@ const siteCopy: Record<Locale, SiteCopy> = {
       services: "Services",
       projects: "Projects",
       contact: "Contact",
+      clientLogin: "Client Login",
       consultationCta: "Free Consultation",
       language: "Language",
     },
@@ -210,6 +212,7 @@ const siteCopy: Record<Locale, SiteCopy> = {
       services: "Diensten",
       projects: "Projecten",
       contact: "Contact",
+      clientLogin: "Client Login",
       consultationCta: "Gratis Advies",
       language: "Taal",
     },

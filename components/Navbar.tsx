@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import type { Locale, SiteCopy } from "@/lib/i18n";
 import { LanguageSelector } from "@/components/LanguageSelector";
 
@@ -45,6 +46,12 @@ export function Navbar({ locale, copy }: NavbarProps) {
               </li>
             ))}
           </ul>
+          <Link
+            href="/login"
+            className="hidden text-sm font-semibold text-zinc-700 transition hover:text-zinc-900 md:inline-flex"
+          >
+            {copy.clientLogin}
+          </Link>
           <LanguageSelector locale={locale} label={copy.language} />
           <a
             href="#contact"

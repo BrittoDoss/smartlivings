@@ -2,6 +2,8 @@
 
 Production Next.js website for SmartLivings with:
 - premium marketing homepage
+- EN/NL language selector
+- client login (Google, X, email/password) via Supabase Auth
 - contact form with file upload
 - SMTP email notifications
 - external submission storage (Supabase)
@@ -22,6 +24,7 @@ Open `http://localhost:3000`.
 Copy from `.env.example` and set real values:
 - `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`
 - `CONTACT_FROM_EMAIL`, `CONTACT_TO_EMAIL`
+- `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
 - `SUPABASE_STORAGE_BUCKET`, `SUPABASE_SUBMISSIONS_TABLE`
 - `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET`
@@ -58,6 +61,26 @@ on conflict (id) do nothing;
 ```
 
 The app writes using `SUPABASE_SERVICE_ROLE_KEY`, so storage/table policies are not required for server writes.
+
+## Client Login Setup (Supabase Auth)
+
+1. In Supabase dashboard:
+- Go to `Authentication` -> `URL Configuration`.
+- Set `Site URL` to your app URL (`http://localhost:3000` for local).
+- Add redirect URLs:
+`http://localhost:3000/auth/callback`
+`https://your-production-domain/auth/callback`
+
+2. Enable providers:
+- `Authentication` -> `Providers` -> enable `Google`
+- `Authentication` -> `Providers` -> enable `Twitter (X)`
+- Add provider credentials from Google Cloud / X Developer portal.
+
+3. Client routes:
+- Login: `/login`
+- Account: `/account`
+
+Social login and email/password login are both available.
 
 ## Admin Dashboard
 
