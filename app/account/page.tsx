@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { ClientSignOutButton } from "@/components/ClientSignOutButton";
 import { createSupabaseAuthServerClient } from "@/lib/supabase-auth-server";
+import { isClientLoginEnabled } from "@/lib/features";
 
 export const metadata: Metadata = {
   title: "My Account | SmartLivings",
@@ -14,6 +15,10 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function AccountPage() {
+  if (!isClientLoginEnabled()) {
+    redirect("/");
+  }
+
   const supabase = await createSupabaseAuthServerClient();
   const {
     data: { user },

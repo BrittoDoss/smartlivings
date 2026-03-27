@@ -29,6 +29,7 @@ Copy from `.env.example` and set real values:
 - `SUPABASE_STORAGE_BUCKET`, `SUPABASE_SUBMISSIONS_TABLE`
 - `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET`
 - `NEXT_PUBLIC_WHATSAPP_NUMBER`
+- `NEXT_PUBLIC_ENABLE_CLIENT_LOGIN` (`false` to disable, `true` to enable)
 
 ## Supabase Setup (External Storage)
 
@@ -81,6 +82,12 @@ The app writes using `SUPABASE_SERVICE_ROLE_KEY`, so storage/table policies are 
 - Account: `/account`
 
 Social login and email/password login are both available.
+
+If you want login disabled for now, keep:
+
+```env
+NEXT_PUBLIC_ENABLE_CLIENT_LOGIN=false
+```
 
 ## Admin Dashboard
 

@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { isClientLoginEnabled } from "@/lib/features";
 
 export const runtime = "nodejs";
 
 export async function GET(request: NextRequest) {
+  const requestUrl = new URL(request.url);
+
+  if (!isClientLoginEnabled()) {
+    return NextResponse.redirect(new URL("/", requestUrl.origin));
+  }
+
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
   const next = requestUrl.searchParams.get("next") ?? "/account";
 

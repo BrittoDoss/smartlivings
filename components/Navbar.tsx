@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Locale, SiteCopy } from "@/lib/i18n";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import { isClientLoginEnabled } from "@/lib/features";
 
 type NavbarProps = {
   locale: Locale;
@@ -9,6 +10,7 @@ type NavbarProps = {
 };
 
 export function Navbar({ locale, copy }: NavbarProps) {
+  const clientLoginEnabled = isClientLoginEnabled();
   const navItems = [
     { label: copy.home, href: "#home" },
     { label: copy.services, href: "#services" },
@@ -46,12 +48,14 @@ export function Navbar({ locale, copy }: NavbarProps) {
               </li>
             ))}
           </ul>
-          <Link
-            href="/login"
-            className="hidden text-sm font-semibold text-zinc-700 transition hover:text-zinc-900 md:inline-flex"
-          >
-            {copy.clientLogin}
-          </Link>
+          {clientLoginEnabled ? (
+            <Link
+              href="/login"
+              className="hidden text-sm font-semibold text-zinc-700 transition hover:text-zinc-900 md:inline-flex"
+            >
+              {copy.clientLogin}
+            </Link>
+          ) : null}
           <LanguageSelector locale={locale} label={copy.language} />
           <a
             href="#contact"
