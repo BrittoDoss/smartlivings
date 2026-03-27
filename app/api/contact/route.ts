@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import { storeSubmission } from "@/lib/submissions";
 
 export const runtime = "nodejs";
 
@@ -113,6 +114,26 @@ export async function POST(request: Request) {
 
     console.log("[contact] lead payload:", payload);
 
+    try {
+      await storeSubmission({
+        name,
+        email,
+        phone,
+        projectType,
+        budgetRange,
+        message,
+        submittedAt: payload.submittedAt,
+        fileMeta,
+        fileBytes,
+      });
+    } catch (storageError) {
+      console.error("[contact] storage error:", storageError);
+      return NextResponse.json(
+        { message: "Submission storage failed. Please try again." },
+        { status: 500 },
+      );
+    }
+
     const smtpHost = process.env.SMTP_HOST ?? "smtp.gmail.com";
     const smtpPort = Number(process.env.SMTP_PORT ?? "465");
     const smtpSecure =
@@ -134,9 +155,7 @@ export async function POST(request: Request) {
 
     const toEmail =
       process.env.CONTACT_TO_EMAIL ?? "smartlivingsinteriordesigner@gmail.com";
-    const fromEmail =
-      process.env.CONTACT_FROM_EMAIL ??
-      `SmartLivings <${smtpUser}>`;
+    const fromEmail = process.env.CONTACT_FROM_EMAIL ?? `SmartLivings <${smtpUser}>`;
     const subject = `New SmartLivings consultation request (${projectType})`;
 
     const transporter = nodemailer.createTransport({

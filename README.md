@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SmartLivings
 
-## Getting Started
+Production Next.js website for SmartLivings with:
+- premium marketing homepage
+- contact form with file upload
+- SMTP email notifications
+- external submission storage (Supabase)
+- authenticated admin dashboard (`/admin`)
 
-First, run the development server:
+## Local Development
 
 ```bash
+npm install
+cp .env.example .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Required Environment Variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Copy from `.env.example` and set real values:
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`
+- `CONTACT_FROM_EMAIL`, `CONTACT_TO_EMAIL`
+- `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
+- `SUPABASE_STORAGE_BUCKET`, `SUPABASE_SUBMISSIONS_TABLE`
+- `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET`
+- `NEXT_PUBLIC_WHATSAPP_NUMBER`
 
-## Learn More
+## Supabase Setup (External Storage)
 
-To learn more about Next.js, take a look at the following resources:
+1. Create table:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```sql
+create table if not exists public.contact_submissions (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  email text not null,
+  phone text not null,
+  project_type text not null,
+  budget_range text not null,
+  message text not null,
+  file_name text,
+  file_type text,
+  file_size bigint,
+  file_path text,
+  submitted_at timestamptz not null default now(),
+  created_at timestamptz not null default now()
+);
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. Create private storage bucket (default bucket name in app is `contact-files`):
 
-## Deploy on Vercel
+```sql
+insert into storage.buckets (id, name, public)
+values ('contact-files', 'contact-files', false)
+on conflict (id) do nothing;
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The app writes using `SUPABASE_SERVICE_ROLE_KEY`, so storage/table policies are not required for server writes.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Admin Dashboard
+
+- URL: `http://localhost:3000/admin/login`
+- Auth: username/password from `ADMIN_USERNAME` and `ADMIN_PASSWORD`
+- Session: signed HTTP-only cookie using `ADMIN_SESSION_SECRET`
+- Dashboard lists submissions from Supabase table
+
+## Email Flow
+
+On each form submission:
+1. submission is saved to Supabase (+ file uploaded to storage if included)
+2. notification email sent to business inbox
+3. confirmation email sent to the user
+
+## Build & Verify
+
+```bash
+npm run lint
+npm run build
+npm run start
+```
