@@ -60,7 +60,7 @@ export function Projects({ copy }: ProjectsProps) {
               {index === 0 ? (
                 <ProjectSlideshow images={almereVogelhorstSlides} alt={project.title} />
               ) : (
-                <div className="relative h-80 w-full bg-zinc-100 sm:h-[80vh]">
+                <div className="relative h-80 w-full bg-zinc-100 sm:h-[70vh]">
                   <Image
                     src={projectImages[index - 1] ?? projectImages[0]}
                     alt={project.title}
